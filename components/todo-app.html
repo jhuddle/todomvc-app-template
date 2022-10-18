@@ -1,0 +1,84 @@
+<header class="header">
+	<h1>todos</h1>
+	<input class="new-todo" placeholder="What needs to be done?" autofocus
+		onchange="host.newTodo(value); value = null"
+	>
+</header>
+<!-- This section should be hidden by default and shown when there are todos -->
+<section class="main">
+	<input id="toggle-all" class="toggle-all" type="checkbox" onchange="host.toggleAll(checked)">
+	<label for="toggle-all">Mark all as complete</label>
+	<ul class="todo-list"></ul>
+</section>
+<!-- This footer should be hidden by default and shown when there are todos -->
+<footer class="footer">
+	<!-- This should be `0 items left` by default -->
+	<span class="todo-count"></span>
+	<!-- Remove this if you don't implement routing -->
+	<ul class="filters">
+		<li>
+			<a class="selected" href="#/">All</a>
+		</li>
+		<li>
+			<a href="#/active">Active</a>
+		</li>
+		<li>
+			<a href="#/completed">Completed</a>
+		</li>
+	</ul>
+	<!-- Hidden if no completed items are left ↓ -->
+	<button class="clear-completed" onclick="host.clearCompleted()">Clear completed</button>
+</footer>
+
+<script>
+	import Ponys from 'https://cdn.jsdelivr.net/gh/jhuddle/ponys/miniature-ponys.js';
+	Ponys.import('todo-item', '../components/todo-item.html');
+
+	export default class extends HTMLElement {
+
+		static disabledFeatures = ['shadow'];
+
+		update() {
+			let todoItems = Array.from(this.$('.todo-list').children);
+			let n = todoItems.length;
+			let c = todoItems.filter(item => item.completed).length
+			let r = n - c;
+			this.$('.main').hidden = !n;
+			this.$('.footer').hidden = !n;
+			this.$('.clear-completed').hidden = !c;
+			this.$('.todo-count').innerHTML = `<strong>${r}</strong> item${r === 1 ? '' : 's'} left`;
+		}
+
+		newTodo(value) {
+			value = value.trim();
+			if (!value.length) return;
+			let todoItem = new (customElements.get('todo-item'));
+			todoItem.save(value);
+			this.$('.todo-list').append(todoItem);
+		}
+
+		toggleAll(value) {
+			for (let todoItem of Array.from(this.$('.todo-list').children)) {
+				todoItem.toggle(value);
+			}
+		}
+
+		clearCompleted() {
+			for (let todoItem of Array.from(this.$('.todo-list').children)) {
+				if (todoItem.completed) {
+					todoItem.destroy();
+				}
+			}
+		}
+
+		connectedCallback() {
+			this.update();
+			this.style.display = 'block';
+			new MutationObserver(mutations =>
+				mutations.forEach(mutation => this.update())
+			).observe(this.$('.todo-list'), {subtree:true, attribute:true, childList: true});
+			// fetch from localStorage
+		}
+
+	}
+</script>

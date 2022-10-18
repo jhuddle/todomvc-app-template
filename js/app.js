@@ -1,6 +1,10 @@
-(function (window) {
-	'use strict';
+//import Router from 'https://cdn.jsdelivr.net/npm/director/+esm'
+import Ponys from 'https://cdn.jsdelivr.net/gh/jhuddle/ponys/miniature-ponys.js';
 
-	// Your starting point. Enjoy the ride!
+//Router({
+	//'/':
+	//'/active':
+	//'/completed':
+//});
 
-})(window);
+Ponys.import('todo-app', '../components/todo-app.html')

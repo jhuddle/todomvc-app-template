@@ -1,0 +1,56 @@
+<!-- List items should get the class `editing` when editing and `completed` when marked as completed -->
+<li>
+	<div class="view" ondblclick="host.edit()">
+		<input class="toggle" type="checkbox" onchange="host.toggle(checked)">
+		<label></label>
+		<button class="destroy" onclick="host.destroy()"></button>
+	</div>
+	<input class="edit" hidden onblur="host.save(value)" onkeydown="if (event.key === 'Enter') blur()">
+</li>
+
+<script>
+	export default class extends HTMLElement {
+
+		static disabledFeatures = ['shadow'];
+
+		value = null;
+		editing = false;
+		completed = false;
+
+		update() {
+			// save to localStorage
+			this.$('label').textContent = this.value;
+			this.$('.edit').value = this.value;
+			this.$('.edit').hidden = !this.editing;
+			this.$('.view').hidden = this.editing;
+			this.$('.toggle').checked = this.completed;
+			this.$('li').classList.toggle('editing', this.editing);
+			this.$('li').classList.toggle('completed', this.completed);
+		}
+
+		edit() {
+			this.editing = true;
+			this.update();
+			this.$('.edit').focus();
+		}
+
+		save(value) {
+			// update in localStorage
+			this.value = value;
+			this.editing = false;
+			this.update();
+		}
+
+		toggle(value) {
+			// update in localStorage
+			this.completed = value;
+			this.update();
+		}
+
+		destroy() {
+			// delete from localStorage
+			this.remove();
+		}
+
+	}
+</script>
